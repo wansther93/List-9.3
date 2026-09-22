@@ -427,25 +427,37 @@ export const CollectionAnimeModal: React.FC<CollectionAnimeModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-zinc-200">
           
           {/* ========================================================================= */}
-          {/* PAINEL DE PROGRESSO REAL DO USUÁRIO (Substitui os containers deduzidos) */}
+          {/* PAINEL DE PROGRESSO REAL DO USUÁRIO (Compacto, elegante e sem espaços ociosos) */}
           {/* ========================================================================= */}
-          <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-white/10 space-y-3 shadow-lg">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2.5">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                  <Bookmark className="w-3.5 h-3.5 text-amber-400" />
-                  Seu Progresso no Acervo
+          <div className="p-2.5 sm:p-3 rounded-xl bg-zinc-900/80 border border-white/10 space-y-2 shadow-md">
+            {/* Cabeçalho unificado com título, nota e status na mesma linha */}
+            <div className="flex flex-wrap items-center justify-between gap-1.5 border-b border-white/5 pb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
+                <Bookmark className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                Seu Progresso no Acervo
+              </span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {anime.rating && anime.rating > 0 ? (
+                  <span className="flex items-center gap-1 text-[11px] font-bold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                    <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                    {anime.rating} / 10
+                  </span>
+                ) : null}
+                {anime.rewatchCount && anime.rewatchCount > 0 ? (
+                  <span className="text-[10px] text-zinc-400 bg-zinc-800/80 px-1.5 py-0.5 rounded border border-white/5 font-semibold">
+                    {anime.rewatchCount}x
+                  </span>
+                ) : null}
+                <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold tracking-wide ${statusConfig.color}`}>
+                  {statusConfig.label}
                 </span>
               </div>
-              <span className={`px-2.5 py-0.5 rounded-lg text-xs font-bold tracking-wide ${statusConfig.color}`}>
-                {statusConfig.label}
-              </span>
             </div>
 
             {/* Linha de Episódio e Barra de Progresso Real da Obra */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs flex-wrap gap-1">
-                <span className="text-zinc-300 font-medium">
+                <span className="text-zinc-300 font-medium text-[11px] sm:text-xs">
                   {anime.currentSeasonName && !isContinuous ? (
                     <span className="text-amber-300 font-semibold">{anime.currentSeasonName} • </span>
                   ) : anime.season && !isContinuous ? (
@@ -458,7 +470,7 @@ export const CollectionAnimeModal: React.FC<CollectionAnimeModalProps> = ({
                 )}
               </div>
               {!isContinuous && totalFranchiseEpisodes > 0 && (
-                <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden border border-white/5">
+                <div className="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden border border-white/5">
                   <div
                     className="h-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
@@ -467,26 +479,10 @@ export const CollectionAnimeModal: React.FC<CollectionAnimeModalProps> = ({
               )}
             </div>
 
-            {/* Avaliação Pessoal e Nota */}
-            <div className="flex flex-wrap items-center gap-3 pt-1 text-xs">
-              <div className="flex items-center gap-1 text-zinc-400">
-                <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
-                <span>Sua Nota:</span>
-                <span className="font-bold text-white ml-0.5">
-                  {anime.rating && anime.rating > 0 ? `${anime.rating} / 10` : 'Não avaliado'}
-                </span>
-              </div>
-              {anime.rewatchCount && anime.rewatchCount > 0 ? (
-                <div className="text-zinc-400">
-                  <span>Reassistido:</span> <span className="font-bold text-white">{anime.rewatchCount}x</span>
-                </div>
-              ) : null}
-            </div>
-
-            {/* Anotações Pessoais se houver */}
+            {/* Anotações Pessoais se houver (enxutas) */}
             {anime.notes && anime.notes.trim() && (
-              <div className="mt-2 p-2.5 rounded-lg bg-black/40 border border-white/5 text-xs space-y-1">
-                <div className="flex items-center gap-1.5 text-zinc-400 font-semibold text-[11px]">
+              <div className="p-2 rounded-lg bg-black/30 border border-white/5 text-[11px] space-y-0.5">
+                <div className="flex items-center gap-1.5 text-zinc-400 font-semibold text-[10px]">
                   <FileText className="w-3 h-3 text-amber-400" />
                   <span>Suas Anotações</span>
                 </div>
@@ -496,15 +492,15 @@ export const CollectionAnimeModal: React.FC<CollectionAnimeModalProps> = ({
 
             {/* Lista das Temporadas & Mídias da Franquia (Compacta & Expansível) */}
             {hasSeasonsList && seasons.length > 0 && (
-              <div className="pt-2.5 border-t border-white/5 space-y-2">
+              <div className="pt-2 border-t border-white/5 space-y-1.5">
                 <button
                   type="button"
                   onClick={() => setIsSeasonsExpanded((prev) => !prev)}
-                  className="w-full py-2 px-3 rounded-xl bg-zinc-950/70 hover:bg-zinc-800/80 border border-white/10 flex items-center justify-between text-[11px] font-bold text-zinc-300 hover:text-white transition-all cursor-pointer group"
+                  className="w-full py-1.5 px-2.5 rounded-lg bg-zinc-950/70 hover:bg-zinc-800/80 border border-white/10 flex items-center justify-between text-[11px] font-bold text-zinc-300 hover:text-white transition-all cursor-pointer group"
                 >
                   <span className="flex items-center gap-1.5">
                     <Layers className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Temporadas & Mídias da Franquia ({seasons.length})</span>
+                    <span>Temporadas & Mídias ({seasons.length})</span>
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="text-amber-300/90 font-medium text-[10px]">
