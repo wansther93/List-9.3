@@ -65,7 +65,8 @@ export const CollectionAnimeModal: React.FC<CollectionAnimeModalProps> = ({
   const [trailerUrl, setTrailerUrl] = useState<string | null>(anime.trailerUrl || null);
 
   const [isSynopsisExpanded, setIsSynopsisExpanded] = useState(false);
-  const [isSeasonsExpanded, setIsSeasonsExpanded] = useState(false);
+  const [isProgressExpanded, setIsProgressExpanded] = useState(false);
+  const [isCharactersExpanded, setIsCharactersExpanded] = useState(false);
   const [isMusicExpanded, setIsMusicExpanded] = useState(false);
   const [activeMediaUrl, setActiveMediaUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -78,7 +79,8 @@ export const CollectionAnimeModal: React.FC<CollectionAnimeModalProps> = ({
 
     let isMounted = true;
     setActiveMediaUrl(null);
-    setIsSeasonsExpanded(false);
+    setIsProgressExpanded(false);
+    setIsCharactersExpanded(false);
     setIsMusicExpanded(false);
     setBannerUrl(anime.bannerUrl || null);
     setTrailerUrl(anime.trailerUrl || null);
@@ -427,140 +429,150 @@ export const CollectionAnimeModal: React.FC<CollectionAnimeModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-zinc-200">
           
           {/* ========================================================================= */}
-          {/* PAINEL DE PROGRESSO REAL DO USUÁRIO (Compacto, elegante e sem espaços ociosos) */}
+          {/* PAINEL DE PROGRESSO REAL DO USUÁRIO (Linha Única Retrátil Inicial) */}
           {/* ========================================================================= */}
-          <div className="p-2.5 sm:p-3 rounded-xl bg-zinc-900/80 border border-white/10 space-y-2 shadow-md">
-            {/* Cabeçalho unificado com título, nota e status na mesma linha */}
-            <div className="flex flex-wrap items-center justify-between gap-1.5 border-b border-white/5 pb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
+          <div className="rounded-xl bg-zinc-900/80 border border-white/10 shadow-md overflow-hidden transition-all">
+            {/* Linha única principal (Sempre visível inicialmente, 100% limpa, sem nota do lado de fora) */}
+            <button
+              type="button"
+              onClick={() => setIsProgressExpanded((prev) => !prev)}
+              className="w-full px-3.5 py-2.5 flex items-center justify-between gap-3 hover:bg-zinc-800/50 transition-colors cursor-pointer group text-left"
+            >
+              <div className="flex items-center gap-2 shrink-0">
                 <Bookmark className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                Seu Progresso no Acervo
-              </span>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {anime.rating && anime.rating > 0 ? (
-                  <span className="flex items-center gap-1 text-[11px] font-bold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
-                    <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                    {anime.rating} / 10
-                  </span>
-                ) : null}
-                {anime.rewatchCount && anime.rewatchCount > 0 ? (
-                  <span className="text-[10px] text-zinc-400 bg-zinc-800/80 px-1.5 py-0.5 rounded border border-white/5 font-semibold">
-                    {anime.rewatchCount}x
-                  </span>
-                ) : null}
-                <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold tracking-wide ${statusConfig.color}`}>
-                  {statusConfig.label}
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-200 whitespace-nowrap">
+                  Seu progresso
                 </span>
               </div>
-            </div>
 
-            {/* Linha de Episódio e Barra de Progresso Real da Obra */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs flex-wrap gap-1">
-                <span className="text-zinc-300 font-medium text-[11px] sm:text-xs">
-                  {anime.currentSeasonName && !isContinuous ? (
-                    <span className="text-amber-300 font-semibold">{anime.currentSeasonName} • </span>
-                  ) : anime.season && !isContinuous ? (
-                    <span className="text-amber-300 font-semibold">Temporada {anime.season} • </span>
-                  ) : null}
-                  {progressTextSegments.join(' • ')}
-                </span>
-                {!isContinuous && totalFranchiseEpisodes > 0 && (
-                  <span className="text-[11px] font-bold text-amber-400">{progressPercent}%</span>
+              <div className="flex items-center gap-1 text-zinc-400 group-hover:text-amber-400 text-xs font-semibold transition-colors shrink-0">
+                <span className="whitespace-nowrap">{isProgressExpanded ? 'Minimizar' : 'Ver progresso'}</span>
+                {isProgressExpanded ? (
+                  <ChevronUp className="w-4 h-4 text-amber-400 shrink-0" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-zinc-400 group-hover:text-amber-400 shrink-0" />
                 )}
               </div>
-              {!isContinuous && totalFranchiseEpisodes > 0 && (
-                <div className="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden border border-white/5">
-                  <div
-                    className="h-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-300"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-              )}
-            </div>
+            </button>
 
-            {/* Anotações Pessoais se houver (enxutas) */}
-            {anime.notes && anime.notes.trim() && (
-              <div className="p-2 rounded-lg bg-black/30 border border-white/5 text-[11px] space-y-0.5">
-                <div className="flex items-center gap-1.5 text-zinc-400 font-semibold text-[10px]">
-                  <FileText className="w-3 h-3 text-amber-400" />
-                  <span>Suas Anotações</span>
-                </div>
-                <p className="text-zinc-300 italic whitespace-pre-wrap">{anime.notes}</p>
-              </div>
-            )}
-
-            {/* Lista das Temporadas & Mídias da Franquia (Compacta & Expansível) */}
-            {hasSeasonsList && seasons.length > 0 && (
-              <div className="pt-2 border-t border-white/5 space-y-1.5">
-                <button
-                  type="button"
-                  onClick={() => setIsSeasonsExpanded((prev) => !prev)}
-                  className="w-full py-1.5 px-2.5 rounded-lg bg-zinc-950/70 hover:bg-zinc-800/80 border border-white/10 flex items-center justify-between text-[11px] font-bold text-zinc-300 hover:text-white transition-all cursor-pointer group"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Temporadas & Mídias ({seasons.length})</span>
+            {/* Conteúdo expandido: barra de progresso detalhada, status, anotações e mídias já diretamente visíveis */}
+            {isProgressExpanded && (
+              <div className="p-3 border-t border-white/5 space-y-3 bg-black/20 animate-in fade-in duration-200">
+                {/* Status, Nota e Rewatch */}
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <span className={`px-2.5 py-0.5 rounded-md text-[11px] font-bold tracking-wide ${statusConfig.color}`}>
+                    {statusConfig.label}
                   </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-amber-300/90 font-medium text-[10px]">
-                      {totalWatchedEpisodes} / {totalFranchiseEpisodes} eps
-                    </span>
-                    <div className="flex items-center gap-1 text-zinc-400 group-hover:text-amber-400 text-[10px]">
-                      <span>{isSeasonsExpanded ? 'Ocultar' : 'Ver mídias'}</span>
-                      {isSeasonsExpanded ? (
-                        <ChevronUp className="w-3.5 h-3.5 text-amber-400" />
-                      ) : (
-                        <ChevronDown className="w-3.5 h-3.5 text-zinc-400 group-hover:text-amber-400" />
-                      )}
-                    </div>
+                  <div className="flex items-center gap-3">
+                    {anime.rating && anime.rating > 0 ? (
+                      <div className="flex items-center gap-1 text-zinc-300">
+                        <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                        <span>Sua Nota: <strong className="text-white">{anime.rating} / 10</strong></span>
+                      </div>
+                    ) : (
+                      <span className="text-zinc-500 text-xs">Sem avaliação</span>
+                    )}
+                    {anime.rewatchCount && anime.rewatchCount > 0 ? (
+                      <span className="text-zinc-400 text-xs">
+                        Reassistido: <strong className="text-white">{anime.rewatchCount}x</strong>
+                      </span>
+                    ) : null}
                   </div>
-                </button>
+                </div>
 
-                {isSeasonsExpanded && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-0.5 no-scrollbar animate-in fade-in duration-200 pt-1">
-                    {seasons.map((sec, idx) => {
-                      const isCurrent =
-                        sec.name.trim().toLowerCase() === (anime.currentSeasonName || '').trim().toLowerCase() ||
-                        (anime.activeSeasonId && sec.id === anime.activeSeasonId);
-                      return (
-                        <div
-                          key={sec.id || idx}
-                          className={`px-2.5 py-1.5 rounded-lg border text-xs flex items-center justify-between gap-2 ${
-                            sec.isWatched
-                              ? 'bg-emerald-500/10 border-emerald-500/20 text-zinc-300'
-                              : isCurrent
-                              ? 'bg-amber-500/10 border-amber-500/30 text-white'
-                              : 'bg-zinc-950/60 border-white/5 text-zinc-400'
-                          }`}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1.5 truncate">
-                              <span className="font-semibold truncate text-zinc-200">{sec.name}</span>
-                              {isCurrent && (
-                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500 text-black font-bold shrink-0">
-                                  Atual
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-[10px] text-zinc-500">
-                              {sec.totalEpisodes ? `${sec.totalEpisodes} eps` : 'Em exibição'}
-                            </span>
-                          </div>
-                          <span
-                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 ${
+                {/* Linha de Episódio e Barra de Progresso Real da Obra */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs flex-wrap gap-1">
+                    <span className="text-zinc-300 font-medium text-[11px] sm:text-xs">
+                      {anime.currentSeasonName && !isContinuous ? (
+                        <span className="text-amber-300 font-semibold">{anime.currentSeasonName} • </span>
+                      ) : anime.season && !isContinuous ? (
+                        <span className="text-amber-300 font-semibold">Temporada {anime.season} • </span>
+                      ) : null}
+                      {progressTextSegments.join(' • ')}
+                    </span>
+                    {!isContinuous && totalFranchiseEpisodes > 0 && (
+                      <span className="text-[11px] font-bold text-amber-400">{progressPercent}%</span>
+                    )}
+                  </div>
+                  {!isContinuous && totalFranchiseEpisodes > 0 && (
+                    <div className="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden border border-white/5">
+                      <div
+                        className="h-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-300"
+                        style={{ width: `${progressPercent}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Anotações Pessoais se houver */}
+                {anime.notes && anime.notes.trim() && (
+                  <div className="p-2 rounded-lg bg-black/30 border border-white/5 text-[11px] space-y-0.5">
+                    <div className="flex items-center gap-1.5 text-zinc-400 font-semibold text-[10px]">
+                      <FileText className="w-3 h-3 text-amber-400" />
+                      <span>Suas Anotações</span>
+                    </div>
+                    <p className="text-zinc-300 italic whitespace-pre-wrap">{anime.notes}</p>
+                  </div>
+                )}
+
+                {/* Lista das Temporadas & Mídias da Franquia (Diretamente visível, sem botão duplo) */}
+                {hasSeasonsList && seasons.length > 0 && (
+                  <div className="pt-2 border-t border-white/5 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-zinc-300">
+                      <span className="flex items-center gap-1.5">
+                        <Layers className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Temporadas & Mídias da Franquia ({seasons.length})</span>
+                      </span>
+                      <span className="text-amber-300/90 font-medium text-[10px]">
+                        {totalWatchedEpisodes} / {totalFranchiseEpisodes} eps assistidos
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-0.5 no-scrollbar pt-0.5">
+                      {seasons.map((sec, idx) => {
+                        const isCurrent =
+                          sec.name.trim().toLowerCase() === (anime.currentSeasonName || '').trim().toLowerCase() ||
+                          (anime.activeSeasonId && sec.id === anime.activeSeasonId);
+                        return (
+                          <div
+                            key={sec.id || idx}
+                            className={`px-2.5 py-1.5 rounded-lg border text-xs flex items-center justify-between gap-2 ${
                               sec.isWatched
-                                ? 'text-emerald-400 bg-emerald-500/15'
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-zinc-300'
                                 : isCurrent
-                                ? 'text-amber-400 bg-amber-500/15'
-                                : 'text-zinc-500'
+                                ? 'bg-amber-500/10 border-amber-500/30 text-white'
+                                : 'bg-zinc-950/60 border-white/5 text-zinc-400'
                             }`}
                           >
-                            {sec.isWatched ? 'Concluído' : isCurrent ? `Ep. ${anime.currentEpisode || 1}` : 'Pendente'}
-                          </span>
-                        </div>
-                      );
-                    })}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1.5 truncate">
+                                <span className="font-semibold truncate text-zinc-200">{sec.name}</span>
+                                {isCurrent && (
+                                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500 text-black font-bold shrink-0">
+                                    Atual
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-[10px] text-zinc-500">
+                                {sec.totalEpisodes ? `${sec.totalEpisodes} eps` : 'Em exibição'}
+                              </span>
+                            </div>
+                            <span
+                              className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 ${
+                                sec.isWatched
+                                  ? 'text-emerald-400 bg-emerald-500/15'
+                                  : isCurrent
+                                  ? 'text-amber-400 bg-amber-500/15'
+                                  : 'text-zinc-500'
+                              }`}
+                            >
+                              {sec.isWatched ? 'Concluído' : isCurrent ? `Ep. ${anime.currentEpisode || 1}` : 'Pendente'}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
@@ -725,28 +737,50 @@ export const CollectionAnimeModal: React.FC<CollectionAnimeModalProps> = ({
                 Carregando elenco de vozes e personagens...
               </div>
             ) : characters.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {characters.slice(0, 6).map((c) => (
-                  <div
-                    key={c.id}
-                    className="p-2 rounded-xl bg-zinc-900/50 border border-white/5 flex items-center gap-2.5"
-                  >
-                    <img
-                      src={c.imageUrl}
-                      alt={c.name}
-                      className="w-10 h-10 rounded-lg object-cover bg-zinc-800 shrink-0 border border-white/10"
-                      onError={(e) => {
-                        (e.target as HTMLElement).style.display = 'none';
-                      }}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-xs font-semibold text-zinc-200 truncate">{c.name}</h4>
-                      <p className="text-[10px] text-zinc-400 truncate">
-                        {c.voiceActor?.name ? `Voz: ${c.voiceActor.name}` : c.role}
-                      </p>
+              <div className="space-y-2">
+                {/* Grade 2x2 inicial que aproveita toda a largura, ou grade expandida */}
+                <div className={`grid grid-cols-2 ${isCharactersExpanded ? 'sm:grid-cols-3 lg:grid-cols-4 max-h-96 overflow-y-auto pr-0.5 no-scrollbar' : ''} gap-2`}>
+                  {(isCharactersExpanded ? characters : characters.slice(0, 4)).map((c) => (
+                    <div
+                      key={c.id}
+                      className="p-2 rounded-xl bg-zinc-900/60 border border-white/5 flex items-center gap-2.5 hover:border-emerald-500/25 transition-colors min-w-0"
+                    >
+                      <img
+                        src={c.imageUrl}
+                        alt={c.name}
+                        className="w-10 h-10 rounded-lg object-cover bg-zinc-800 shrink-0 border border-white/10"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-xs font-semibold text-zinc-200 truncate" title={c.name}>{c.name}</h4>
+                        <p className="text-[10px] text-zinc-400 truncate" title={c.voiceActor?.name || c.role}>
+                          {c.voiceActor?.name ? `Voz: ${c.voiceActor.name}` : c.role}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                {characters.length > 4 && (
+                  <button
+                    type="button"
+                    onClick={() => setIsCharactersExpanded((prev) => !prev)}
+                    className="w-full py-1.5 px-3 rounded-lg bg-zinc-900/60 hover:bg-zinc-800 border border-white/5 text-[11px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <span>
+                      {isCharactersExpanded
+                        ? 'Mostrar menos dubladores'
+                        : `Ver elenco completo (${characters.length} personagens)`}
+                    </span>
+                    {isCharactersExpanded ? (
+                      <ChevronUp className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5 text-emerald-400" />
+                    )}
+                  </button>
+                )}
               </div>
             ) : (
               <div className="p-2.5 rounded-xl bg-zinc-900/30 border border-white/5 text-xs text-zinc-400">
@@ -755,7 +789,7 @@ export const CollectionAnimeModal: React.FC<CollectionAnimeModalProps> = ({
             )}
           </div>
 
-          {/* Temas Musicais (Openings & Endings) com Player HD e Expansão */}
+          {/* Temas Musicais (Openings & Endings) em Grade com Cards Clicáveis */}
           {themes && themes.length > 0 && (
             <div className="space-y-3 pt-1 border-t border-white/5">
               <div className="flex items-center justify-between">
@@ -764,141 +798,152 @@ export const CollectionAnimeModal: React.FC<CollectionAnimeModalProps> = ({
                   <span>Músicas Oficiais (Aberturas & Encerramentos)</span>
                 </h3>
                 {themes.some((t) => t.videoUrl) && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-950/60 text-purple-300 border border-purple-500/30 font-bold">
-                    Vídeos HD
+                  <span className="text-[10px] text-purple-300/80 font-medium">
+                    Toque para ouvir
                   </span>
                 )}
               </div>
 
-              {/* Player de Vídeo/Áudio Embutido */}
-              {activeMediaUrl && (
-                <div className="p-3 rounded-2xl bg-black border border-purple-500/40 space-y-2 animate-in fade-in duration-200 shadow-2xl">
-                  <div className="flex items-center justify-between text-xs text-purple-300 font-bold">
-                    <span className="flex items-center gap-1.5">
-                      <Volume2 className="w-4 h-4 text-purple-400 animate-pulse" />
-                      Reproduzindo Tema Oficial
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setActiveMediaUrl(null)}
-                      className="text-zinc-400 hover:text-white text-xs cursor-pointer px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 transition-colors"
-                    >
-                      Fechar Player ✕
-                    </button>
-                  </div>
-                  <video
-                    src={activeMediaUrl}
-                    controls
-                    autoPlay
-                    className="w-full max-h-56 rounded-xl bg-black aspect-video object-contain"
-                  />
-                </div>
-              )}
-
-              {/* Lista de Aberturas e Encerramentos */}
+              {/* Lista de Aberturas e Encerramentos em Grade 2 Colunas (Player inline onde o usuário clicar) */}
               {(() => {
                 const ops = themes.filter((t) => t.themeType === 'OP');
                 const eds = themes.filter((t) => t.themeType === 'ED');
-                const displayedOps = isMusicExpanded ? ops : ops.slice(0, 2);
-                const displayedEds = isMusicExpanded ? eds : eds.slice(0, 2);
-                const hasMore = ops.length > 2 || eds.length > 2;
+                // Inicialmente mostra 1 Abertura e 1 Encerramento lado a lado na grade de 2 colunas
+                const displayedThemes = isMusicExpanded
+                  ? themes
+                  : [...ops.slice(0, 1), ...eds.slice(0, 1)];
+                const hasMore = ops.length > 1 || eds.length > 1;
 
                 return (
                   <div className="space-y-2.5">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                      {displayedOps.map((op, idx) => (
-                        <div
-                          key={`op-${idx}`}
-                          className="p-2.5 rounded-xl bg-zinc-900/50 border border-white/5 flex items-center justify-between gap-2.5 hover:border-purple-500/30 transition-colors"
-                        >
-                          <div className="min-w-0 flex-1 space-y-0.5">
-                            <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider block">
-                              Abertura {op.sequence || idx + 1}
-                            </span>
-                            <p className="text-zinc-200 font-medium truncate" title={op.songTitle}>
-                              {op.songTitle}
-                            </p>
-                            {op.artistName && (
-                              <p className="text-[10px] text-zinc-400 truncate" title={op.artistName}>
-                                {op.artistName}
-                              </p>
-                            )}
-                          </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      {displayedThemes.map((theme, idx) => {
+                        const isOp = theme.themeType === 'OP';
+                        const isPlaying = Boolean(activeMediaUrl && activeMediaUrl === theme.videoUrl);
+                        const hasVideo = Boolean(theme.videoUrl);
 
-                          <div className="flex items-center gap-1 shrink-0">
-                            {op.videoUrl && (
-                              <button
-                                type="button"
-                                onClick={() => setActiveMediaUrl(op.videoUrl || null)}
-                                className="px-2 py-1 rounded-lg bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 text-purple-300 hover:text-white font-bold text-[10px] flex items-center gap-1 transition-all cursor-pointer"
-                                title="Assistir vídeo oficial"
+                        return (
+                          <div
+                            key={`${theme.themeType}-${idx}`}
+                            onClick={() => {
+                              if (isPlaying) {
+                                setActiveMediaUrl(null);
+                              } else if (hasVideo) {
+                                setActiveMediaUrl(theme.videoUrl || null);
+                              } else {
+                                window.open(
+                                  `https://www.youtube.com/results?search_query=${encodeURIComponent(
+                                    `${anime.title} ${isOp ? 'opening' : 'ending'} ${theme.songTitle || ''}`
+                                  )}`,
+                                  '_blank'
+                                );
+                              }
+                            }}
+                            className={`p-2.5 rounded-xl border transition-all cursor-pointer group text-left ${
+                              isPlaying
+                                ? isOp
+                                  ? 'col-span-2 bg-purple-950/40 border-purple-500 shadow-xl'
+                                  : 'col-span-2 bg-sky-950/40 border-sky-500 shadow-xl'
+                                : isOp
+                                ? 'col-span-1 bg-zinc-900/60 border-white/5 hover:border-purple-500/40 hover:bg-purple-950/20'
+                                : 'col-span-1 bg-zinc-900/60 border-white/5 hover:border-sky-500/40 hover:bg-sky-950/20'
+                            }`}
+                            title={
+                              isPlaying
+                                ? 'Clique para fechar o reprodutor'
+                                : hasVideo
+                                ? 'Clique para reproduzir o vídeo oficial aqui'
+                                : 'Clique para buscar no YouTube'
+                            }
+                          >
+                            {/* Cabeçalho da música */}
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="min-w-0 flex-1 space-y-0.5">
+                                <div className="flex items-center gap-1.5">
+                                  {hasVideo ? (
+                                    <Play
+                                      className={`w-3 h-3 shrink-0 fill-current ${
+                                        isPlaying
+                                          ? isOp
+                                            ? 'text-purple-400 animate-pulse'
+                                            : 'text-sky-400 animate-pulse'
+                                          : isOp
+                                          ? 'text-purple-400 group-hover:scale-110 transition-transform'
+                                          : 'text-sky-400 group-hover:scale-110 transition-transform'
+                                      }`}
+                                    />
+                                  ) : (
+                                    <Music className={`w-3 h-3 shrink-0 ${isOp ? 'text-purple-400/70' : 'text-sky-400/70'}`} />
+                                  )}
+                                  <span
+                                    className={`text-[10px] font-bold uppercase tracking-wider block ${
+                                      isOp ? 'text-purple-400' : 'text-sky-400'
+                                    }`}
+                                  >
+                                    {isOp ? `Abertura ${theme.sequence || ''}` : `Encerramento ${theme.sequence || ''}`}
+                                  </span>
+                                </div>
+
+                                <p
+                                  className="text-zinc-200 font-semibold truncate group-hover:text-white transition-colors"
+                                  title={theme.songTitle}
+                                >
+                                  {theme.songTitle || 'Tema Musical'}
+                                </p>
+
+                                {theme.artistName && (
+                                  <p className="text-[10px] text-zinc-400 truncate" title={theme.artistName}>
+                                    {theme.artistName}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Ações: Fechar Player (se ativo) ou Botão YouTube */}
+                              <div className="flex items-center gap-1 shrink-0">
+                                {isPlaying && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActiveMediaUrl(null);
+                                    }}
+                                    className="px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[10px] font-bold transition-colors cursor-pointer"
+                                  >
+                                    ✕ Fechar
+                                  </button>
+                                )}
+                                <a
+                                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(
+                                    `${anime.title} ${isOp ? 'opening' : 'ending'} ${theme.songTitle || ''}`
+                                  )}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-red-600/30 hover:border-red-500/40 border border-white/5 text-zinc-400 hover:text-red-300 transition-colors shrink-0"
+                                  title="Abrir no YouTube"
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </a>
+                              </div>
+                            </div>
+
+                            {/* Reprodutor de vídeo inline exatamente onde foi clicado */}
+                            {isPlaying && activeMediaUrl && (
+                              <div
+                                onClick={(e) => e.stopPropagation()}
+                                className="mt-2.5 pt-2 border-t border-white/10 animate-in fade-in duration-200"
                               >
-                                <Play className="w-2.5 h-2.5 fill-current" />
-                                <span>Vídeo HD</span>
-                              </button>
-                            )}
-                            <a
-                              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(
-                                `${anime.title} opening ${op.songTitle || ''}`
-                              )}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-300 hover:text-white font-medium text-[10px] flex items-center gap-1 transition-all"
-                              title="Buscar no YouTube"
-                            >
-                              <ExternalLink className="w-2.5 h-2.5" />
-                              <span>YouTube</span>
-                            </a>
-                          </div>
-                        </div>
-                      ))}
-
-                      {displayedEds.map((ed, idx) => (
-                        <div
-                          key={`ed-${idx}`}
-                          className="p-2.5 rounded-xl bg-zinc-900/50 border border-white/5 flex items-center justify-between gap-2.5 hover:border-sky-500/30 transition-colors"
-                        >
-                          <div className="min-w-0 flex-1 space-y-0.5">
-                            <span className="text-[10px] font-bold text-sky-400 uppercase tracking-wider block">
-                              Encerramento {ed.sequence || idx + 1}
-                            </span>
-                            <p className="text-zinc-200 font-medium truncate" title={ed.songTitle}>
-                              {ed.songTitle}
-                            </p>
-                            {ed.artistName && (
-                              <p className="text-[10px] text-zinc-400 truncate" title={ed.artistName}>
-                                {ed.artistName}
-                              </p>
+                                <video
+                                  src={activeMediaUrl}
+                                  controls
+                                  autoPlay
+                                  className="w-full max-h-72 rounded-xl bg-black aspect-video object-contain shadow-2xl border border-white/10"
+                                />
+                              </div>
                             )}
                           </div>
-
-                          <div className="flex items-center gap-1 shrink-0">
-                            {ed.videoUrl && (
-                              <button
-                                type="button"
-                                onClick={() => setActiveMediaUrl(ed.videoUrl || null)}
-                                className="px-2 py-1 rounded-lg bg-sky-600/20 hover:bg-sky-600/40 border border-sky-500/30 text-sky-300 hover:text-white font-bold text-[10px] flex items-center gap-1 transition-all cursor-pointer"
-                                title="Assistir vídeo oficial"
-                              >
-                                <Play className="w-2.5 h-2.5 fill-current" />
-                                <span>Vídeo HD</span>
-                              </button>
-                            )}
-                            <a
-                              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(
-                                `${anime.title} ending ${ed.songTitle || ''}`
-                              )}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-300 hover:text-white font-medium text-[10px] flex items-center gap-1 transition-all"
-                              title="Buscar no YouTube"
-                            >
-                              <ExternalLink className="w-2.5 h-2.5" />
-                              <span>YouTube</span>
-                            </a>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     {hasMore && (
